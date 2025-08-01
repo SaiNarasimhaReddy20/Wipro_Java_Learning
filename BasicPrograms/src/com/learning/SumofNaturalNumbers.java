@@ -1,0 +1,20 @@
+// 2. Java Program to Find Sum of Natural Numbers
+
+package com.learning;
+import java.util.*;
+
+public class SumofNaturalNumbers {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Scanner sc = new Scanner(System.in);
+		int num = sc.nextInt();
+		int sum=0;
+		for (int i=1;i<=num;i++) {
+			sum+=i;
+		}
+		System.out.println(sum);
+
+	}
+
+}
