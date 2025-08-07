@@ -1,0 +1,438 @@
+Multithreading :
+
+Multitasking ,Multithreading and Multiprocessing
+
+Multitasking : The ability of an OS which handles or manages the different tasks , to execute multiple independent progras
+or tasks concurrently , where tasks are switching so instantly between each other (time-sharing the CPU in OS) . Each task
+has its own seperate memory space. 
+
+for eg: Running  web browser , word application , music player on a single - core processor or computer . The OS will allocate
+ small time slices to each application , creating the virtual environment or illusion that all are running parallely 
+ 
+Multithreading : A technique where a single program or process is dividied into multiple independent units of execution called 
+Thread
+
+for eg :  A web server handling multiple client request  concurrently , Instead of creating a new process for each request
+(would be  proper resource allocation ) , the server creates a new thread for each client request , sharing the server's resources 
+(asynchronous manner) 
+
+Synchronous --- When one thread will execute completely then only the another thread or a process will execute , no matter how 
+how much time the first thread is taking to complete. for eg: Read / Write , Withdraw  / Deposit 
+
+Asynchronous --- When multiple thread or process can execute concurrently or parallely to utilize the waiting time for a thread which 
+is time consuming process : --  for eg: Order/(Notification/Alerts) parallely they are receiving  ,,
+File copying ( while copying // some percentage  it shows that how much time is left or done) 
+
+class Program
+{
+
+void input()
+{}
+
+void display()
+{}
+
+static void main(String[] args) -- thread
+{
+    input()  --- thread
+    display() --- thread
+}
+
+}
+
+Thread is light in process ( weight)
+Better Peformance , Optimization 
+Thread communication
+
+Multiprocessing :   the use of multiple independent processing units( Multiple processors / CPU cores)  within a single computer
+system to execute multiple processes or programs simultaneously in parallel where each process runs on a seperate processor
+
+Gaming software , video editing software ( audio / video / animation) the process takes place and has its own dedicated memory space .
+
+Different parts of the video related tasks can be distributed among the available cores , which leads to faster completion
+
+-------------------------
+package com.example.threadclass;
+
+public class ThreadClassExample extends Thread {
+
+	// to get the thread in a running state 
+	public void run()  // Running state
+	{
+		
+		System.out.println("Thread is running :" + Thread.currentThread().getName());
+	}
+	
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		ThreadClassExample th = new ThreadClassExample(); // New state
+		th.setName("Thread 1");
+		th.start(); // Runnable state
+
+	}
+
+}
+
+
+________________________________
+
+
+package com.example.threadclass;
+
+public class ThreadInterfaceExample implements Runnable{
+
+	public static void main(String[] args) {
+		ThreadInterfaceExample tr= new ThreadInterfaceExample();
+		Thread tc = new Thread(tr);
+		tc.setName("Thread 1");
+		tc.start();
+		
+
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		System.out.println("Thread is running :" + Thread.currentThread().getName());
+	}
+
+}
+-------------------------------------------------------------
+package com.wipro.threads;
+
+
+/* synchronous -- User A ->  userB --> user c can place the order in sequence ()
+
+orders are independent , but uses wait() / notify() to coordinate the billing readiness once the billing is complete
+
+for each user , send a notification 
+
+*
+
+*/
+
+  class BillingSystem{
+    	 private boolean isBilled = false;
+    	 
+    	 public synchronized void billUser(String user) {
+    		 System.out.println("Billing started " +user);
+    		 try {
+    			 Thread.sleep(2000);
+    		 }catch(InterruptedException e) {
+    			 e.printStackTrace();
+    		 }
+    		 isBilled=true;
+    		 System.out.println("Billing is completed for " + user);
+    		 notify();
+    	 }
+
+		public synchronized void waitForBilling(String user) {
+			// TODO Auto-generated method stub
+			while(!isBilled) {
+				try {
+					wait();
+				}catch(InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			System.out.println("billing done");
+		}
+     }
+	public class Userthread extends Thread{
+		private String username;
+		private BillingSystem billingSystem;
+		public Userthread(String username, BillingSystem billingSystem) {
+			super();
+			this.username = username;
+			this.billingSystem = billingSystem;
+		}
+		
+		@Override
+		public void run() {
+			System.out.println(username + "is placing the order..");
+			try {
+				Thread.sleep(1000);
+			}catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+			System.out.println(username + "has placed the order");
+			
+			new Thread(() -> billingSystem.billUser(username)).start();
+			
+			billingSystem.waitForBilling(username);
+		}
+	
+	
+	public static void main(String[] args) {
+		BillingSystem billingSystem = new BillingSystem();
+		
+		System.out.println("Synchronous order ");
+		Userthread userA = new Userthread("User-A",billingSystem);
+		Userthread userB = new Userthread("User-B",billingSystem);
+		Userthread userC = new Userthread("User-C",billingSystem);
+		
+		try {
+			userA.start();
+			userA.join();
+			
+			userB.start();
+			userB.join();
+			
+			userC.start();
+			userC.join();
+		}catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println("All users have completed their order and billings");
+	}
+	}
+
+----------------------------------------------------------------------
+_______________________________________________________
+
+package com.example.behavioraldesignpattern;
+
+
+// meant for creating different types of payment methods(credit , upi)based on user's input
+
+interface Payment
+{
+	
+void pay(double amount);
+}
+
+
+class CreditCard implements Payment
+{
+
+	@Override
+	public void pay(double amount) {
+		System.out.println("Payment done using credit card :");
+		
+	}
+	
+}
+
+class Upi implements Payment
+{
+
+	@Override
+	public void pay(double amount) {
+		System.out.println("Payment done using Upi :");
+		
+		
+	}
+	
+}
+
+// Factory class
+class PaymentFactory{
+	
+	public static Payment getPayment(String type)
+	{
+		
+		return switch(type)
+				{
+					case "credit" -> new CreditCard();
+					case "upi" -> new Upi();
+					default -> throw new IllegalArgumentException("Unexpected value: " + type);
+				};
+	}
+	
+	
+	
+}
+
+
+
+
+public class FactoryPatternExample {
+
+	public static void main(String[] args) {
+		Payment p1 = PaymentFactory.getPayment("credit");
+		p1.pay(12000);
+		
+		Payment p2 = PaymentFactory.getPayment("upi");
+		p2.pay(12000);
+	}
+
+}
+_________________________________________________________________________
+
+
+package com.example.behavioraldesignpattern;
+
+
+
+abstract class Document implements Cloneable
+{
+	
+	public String content;
+
+	public Document(String content) {
+		super();
+		this.content = content;
+	}
+	
+	public abstract void print();
+
+	public Document clone()
+	{
+		try {
+			
+			return (Document)super.clone();
+			
+		}
+		catch(Exception e)
+		{
+			e.getStackTrace();
+		}
+		return null;
+		
+		
+	}
+
+}
+
+class Invoice extends Document
+{
+
+	public Invoice(String content) {
+		super(content);
+		// TODO Auto-generated constructor stub
+	}
+	
+	public void print()
+	{
+		
+		System.out.println("Invoice content :" + content);
+	}
+
+}
+
+public class PrototypeExample {
+
+	public static void main(String[] args) {
+		
+		Invoice invoriginal = new Invoice("the orginal invoice amount is 15000");
+		
+		
+		Invoice copy1_0 = (Invoice) invoriginal.clone();
+		
+		Invoice copy1_1 = (Invoice) invoriginal.clone();
+		
+		invoriginal.print();
+		copy1_0.content = " Cloned Invoice for rs 15000 + GST";
+		copy1_0.print();
+		
+		copy1_1.content = " Cloned Invoice for rs 15000 + GST + Commission Charges";
+		copy1_1.print();
+
+	}
+
+}
+
+
+____________________________________________________________________________
+
+package com.example.behavioraldesignpattern;
+
+
+
+// An utility builder class for an immutable  product
+
+final class Product {
+	
+	private final String name;
+	private final double price;
+	private final String configuration;
+	
+   // getting an object on ProductBuilder passed through Product class constructor using Build()
+	private Product(ProductBuilder pB) {
+		
+		this.name = pB.name;
+		this.price = pB.price;
+		this.configuration = pB.configuration;
+	}
+
+	public static class ProductBuilder
+	{
+		
+		private String name; // cannot access it directly  , we will give setter method to them 
+		private double price;
+		private String configuration;
+		
+		public ProductBuilder setName(String name) {
+			this.name = name;
+			return this;
+		}
+		public ProductBuilder setPrice(double price) {
+			
+			this.price = price;
+			return this;
+		}
+		
+			public ProductBuilder setConfiguration(String configuration) {
+			
+			this.configuration = configuration;
+			return this;
+		}
+		
+		
+		public Product build()
+		{
+			
+			return new Product(this); // return ProductBuilder class object
+		}
+		
+}
+	public void show() 
+	{
+		System.out.println("Product :" + name + " Price :" + price);
+	}
+
+	
+}
+
+
+
+package com.example.behavioraldesignpattern;
+
+import java.util.Scanner;
+
+public class ProductMain {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Which product you are looking for ");
+		String product = sc.next();
+		
+		System.out.println(" Product configuration");
+		String productconf = sc.next();
+		//Through the ProductBuilder Class we are making Product class as Mutable
+		
+		Product p = new Product.ProductBuilder()
+				 .setName(product)
+				 .setConfiguration(productconf)
+				 .setPrice(45000)
+				 .build();
+		
+		
+		p.show();	
+		
+//		Product p1 = new Product.ProductBuilder()
+//				.setName(product)
+//				.setPrice(45000.00)
+//				.build();
+//		
+//		p1.show();
+
+	}	
+
+}
+
+

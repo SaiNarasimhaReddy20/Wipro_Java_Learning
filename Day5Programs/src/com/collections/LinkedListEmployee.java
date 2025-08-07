@@ -15,7 +15,7 @@ import java.util.Scanner;
 // and if you are appending and searching / view / sorting  using frequently then use ArrayList
 public class LinkedListEmployee {
  
- //private static List<Employee> list= new ArrayList<>();
+ 
  private static List<Employee> list= new LinkedList<>();
  private static Scanner sc  = new Scanner(System.in);
  private static Employee e = new Employee();
@@ -30,7 +30,7 @@ public class LinkedListEmployee {
    case 1  -> addEmployee();
    case 2 -> deleteEmployee();
    case 3 -> searchEmployee();
-   case 4-> viewAll();
+   case 4 -> viewAll();
    case 5 -> addEmployeeAtPosition();
    case 6 -> Exit();
    
